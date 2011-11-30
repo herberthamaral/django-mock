@@ -2,7 +2,6 @@ import unittest
 import fudge
 from djangomock import FakeDjangoQuerySet, stub
 
-
 class TestFakeDjangoQueryset(unittest.TestCase):
     def setUp(self):
         self.objects = FakeDjangoQuerySet()
@@ -60,6 +59,21 @@ class TestFakeDjangoQueryset(unittest.TestCase):
     def test_it_can_load_fixtures(self):
         queryset = FakeDjangoQuerySet(fixtures='fixtures.json', model='auth.permission')
         self.assertEquals(3, queryset.count())
+
+    def test_add_from_dict(self):
+        queryset = FakeDjangoQuerySet()
+        queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True})
+        self.assertEquals(1, queryset[0].id)
+    
+    def test_add_from_dict_should_add_autoincrementing_primary_key(self):
+        queryset = FakeDjangoQuerySet()
+        queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True})
+        queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True})
+        self.assertEquals(2, queryset[1].id)
+        queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True}, pk=30)
+        self.assertEquals(30, queryset[2].id)
+        queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True})
+        self.assertEquals(31, queryset[3].id)
 
 if __name__=='__main__':
     unittest.main()

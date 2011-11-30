@@ -18,10 +18,21 @@ class FakeDjangoQuerySet(list):
         modelname = model.split('.')[1]
         for o in objects:
             fakeobj = stub(modelname)
-            for key, value in o['fields'].items():
-                setattr(fakeobj, key, value)
-            self.append(fakeobj)
+            self.add_from_dict(modelname, o['fields'], o['pk'])
 
+    def add_from_dict(self, name, thedict, pk=0):
+        fakeobj = stub(name)
+        for key, value in thedict.items():
+            setattr(fakeobj, key, value)
+
+        if pk != 0:
+            fakeobj.id = pk
+        elif self.__len__() == 0:
+            fakeobj.id = 1
+        else:
+            fakeobj.id = self.order_by('-id')[0].id+1
+          
+        self.append(fakeobj)
 
     def count(self):
         return self.__len__()
@@ -59,3 +70,4 @@ class FakeDjangoQuerySet(list):
             reverse = True
             field = field[1:]
         return sorted(self, key=lambda sortfield: getattr(sortfield, field), reverse=reverse)
+
