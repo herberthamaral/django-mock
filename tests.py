@@ -75,5 +75,20 @@ class TestFakeDjangoQueryset(unittest.TestCase):
         queryset.add_from_dict('User', {'username': 'herp', 'password':'h4$h', 'is_staff': True})
         self.assertEquals(31, queryset[3].id)
 
+import fakemodels as models
+
+class TestFakeModels(unittest.TestCase):
+
+    def setUp(self):
+        class User(models.Model):
+            name = models.CharField(max_length=30)
+        self.User = User
+
+    def test_should_create_autofield(self):
+        self.assertTrue(type(self.User.fields[0]) == models.AutoField)
+
+    def test_should_create_manager(self):
+        self.assertEquals(0, self.User.objects.count())
+        
 if __name__=='__main__':
     unittest.main()
