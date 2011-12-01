@@ -20,6 +20,15 @@ class FakeDjangoQuerySet(list):
             fakeobj = stub(modelname)
             self.add_from_dict(modelname, o['fields'], o['pk'])
 
+    def add_from_model_object(self, obj):
+        if obj.id is not None:
+            return
+        if self.__len__() == 0:
+            obj.id = 1
+        else:
+            obj.id = self.order_by('-id')[0].id+1
+        self.append(obj)
+
     def add_from_dict(self, name, thedict, pk=0):
         fakeobj = stub(name)
         for key, value in thedict.items():

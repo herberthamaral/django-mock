@@ -62,9 +62,5 @@ class Model(object):
             setattr(self, field.name, field.default)
 
     def save(self, **kwargs):
-        kwargs = {}
-        for field in self._meta.fields:
-            kwargs[field.name] = getattr(self, field.name)
-        self.objects.add_from_dict('',kwargs)
-        self.id = self.objects[-1].id
+        self.objects.add_from_model_object(self)
 

@@ -95,6 +95,16 @@ class TestFakeModels(unittest.TestCase):
         user.name = 'me'
         user.save()
         self.assertEquals(1, self.User.objects.count())
+        self.assertEquals(1, user.id)
+
+    def test_save_two_times_should_add_only_one(self):
+        user = self.User()
+        user.name = 'me'
+        user.save()
+        user.save()
+        self.assertEquals(1, self.User.objects.count())
+        
+    
         
 if __name__=='__main__':
     unittest.main()
