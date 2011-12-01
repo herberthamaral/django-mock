@@ -85,7 +85,7 @@ class TestFakeModels(unittest.TestCase):
         self.User = User
 
     def test_should_create_autofield(self):
-        self.assertTrue(type(self.User.fields[0]) == models.AutoField)
+        self.assertTrue(type(self.User._meta.fields[0]) == models.AutoField)
 
     def test_should_create_manager(self):
         self.assertEquals(0, self.User.objects.count())
