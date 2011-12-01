@@ -1,19 +1,27 @@
 from djangomock import FakeDjangoQuerySet
 
 class Field(object):
+    default = None
+    name = ''
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+        if self.default is not None:
+            self.value = self.default
     
     def __eq__(self, value):
         self.value = value
 
 class CharField(Field):
-    pass
+    default = ''
 
-class AutoField(Field):
-    pass
+class IntegerField(Field):
+    default = 0
+
+class AutoField(IntegerField):
+    default = None
 
 class Options(object):
     fields = []
@@ -30,8 +38,16 @@ class Options(object):
 class ModelMetaclass(type):
     def __new__(klass, name, bases, dct):
         theclass = type.__new__(klass, name, bases, dct)
-        fields = [getattr(theclass,field) for field in dir(theclass) if issubclass(type(getattr(theclass, field)), Field)]
-        fields.insert(0, AutoField())
+        fields = []
+        for field in dir(theclass):
+            if issubclass(type(getattr(theclass,field)), Field): 
+                f = getattr(theclass, field)
+                f.name = field
+                fields.append(f)
+            
+        auto = AutoField()
+        auto.name = 'id'
+        fields.insert(0, auto)
         options = Options(name)
         options.fields = fields
         setattr(theclass, '_meta', options)
@@ -40,4 +56,15 @@ class ModelMetaclass(type):
 
 class Model(object):
     __metaclass__ = ModelMetaclass
+
+    def __init__(self, **kwargs):
+        for field in self._meta.fields:
+            setattr(self, field.name, field.default)
+
+    def save(self, **kwargs):
+        kwargs = {}
+        for field in self._meta.fields:
+            kwargs[field.name] = getattr(self, field.name)
+        self.objects.add_from_dict('',kwargs)
+        self.id = self.objects[-1].id
 

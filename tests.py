@@ -89,6 +89,13 @@ class TestFakeModels(unittest.TestCase):
 
     def test_should_create_manager(self):
         self.assertEquals(0, self.User.objects.count())
+
+    def test_save_should_create(self):
+        user = self.User()
+        user.name = 'me'
+        user.save()
+        self.assertEquals(1, self.User.objects.count())
         
 if __name__=='__main__':
     unittest.main()
+
